@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Paleta Repostería Artesanal DulceCuenta */
+  --color-cream-50: #fdfbf7;
+  --color-cream-100: #f9f5ec;
+  --color-cream-200: #f3ebda;
+  --color-cream-300: #e8dec9;
 
-@theme inline {
+  --color-beige-100: #efe8dc;
+  --color-beige-200: #e2d6c3;
+  --color-beige-300: #d2c1a8;
+  --color-beige-500: #a68f72;
+
+  --color-rose-pastel-50: #fff5f5;
+  --color-rose-pastel-100: #ffe8ec;
+  --color-rose-pastel-200: #fed2d9;
+  --color-rose-pastel-400: #f88d9e;
+  --color-rose-pastel-500: #e65a73;
+  --color-rose-pastel-600: #c93f57;
+
+  --color-brown-soft-100: #ece4de;
+  --color-brown-soft-200: #dcd0c7;
+  --color-brown-soft-400: #9c8273;
+  --color-brown-soft-600: #745849;
+  --color-brown-soft-800: #4a3528;
+  --color-brown-soft-900: #2e2018;
+
+  /* Variables semánticas */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #fdfbf7;
+  --foreground: #4a3528;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
 }

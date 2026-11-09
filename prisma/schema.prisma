@@ -1,0 +1,111 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  businessName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ingredients        Ingredient[]
+  recipes            Recipe[]
+  calculationHistory CalculationHistory[]
+
+  @@map("users")
+}
+
+model Ingredient {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  category         String   // e.g. "Harinas", "Lácteos", "Azúcares", "Chocolates", "Grasas", "Otros"
+  purchaseQuantity Float    // Cantidad comprada (ej: 1000)
+  purchaseUnit     String   // Unidad de compra (ej: "g", "kg", "ml", "l", "ud")
+  purchasePrice    Float    // Precio en COP (ej: 5000)
+  costPerBaseUnit  Float    // Costo calculado por unidad base ($/g, $/ml, $/ud)
+  baseUnit         String   // "g", "ml", "ud"
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeIngredients RecipeIngredient[]
+
+  @@index([userId])
+  @@map("ingredients")
+}
+
+model Recipe {
+  id                   String   @id @default(cuid())
+  userId               String
+  name                 String
+  description          String?
+  yieldAmount          Float    @default(1) // Cantidad o porciones que rinde la preparación
+  yieldUnit            String   @default("porciones") // "porciones", "unidades", "tortas"
+  decorationCost       Float    @default(0) // Costo de decoración / cobertura
+  packagingCost        Float    @default(0) // Costo de cajas, bases, cintas
+  laborCost            Float    @default(0) // Mano de obra asignada
+  otherCosts           Float    @default(0) // Gas, electricidad, imprevistos
+  totalIngredientsCost Float    @default(0)
+  totalProductionCost  Float    @default(0)
+  unitCost             Float    @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients  RecipeIngredient[]
+  calculations CalculationHistory[]
+
+  @@index([userId])
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  id             String @id @default(cuid())
+  recipeId       String
+  ingredientId   String
+  quantity       Float  // Cantidad utilizada en la receta
+  unit           String // Unidad usada (ej: "g", "cucharada", etc.)
+  calculatedCost Float  // Costo proporcional de esta cantidad
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@index([recipeId])
+  @@index([ingredientId])
+  @@map("recipe_ingredients")
+}
+
+model CalculationHistory {
+  id                     String   @id @default(cuid())
+  userId                 String
+  recipeId               String?  // Opcional: puede ser una receta guardada o un cálculo libre
+  productNameSnapshot    String   // Nombre del producto al momento del cálculo
+  yieldSnapshot          Float    @default(1)
+  ingredientsCostSnapshot Float
+  additionalCostsSnapshot Float
+  totalCostSnapshot      Float
+  unitCostSnapshot       Float
+  calculationMethod      String   // "MARKUP" (sobre costo) | "MARGIN" (sobre precio venta)
+  marginPercentage       Float
+  suggestedPrice         Float
+  estimatedProfit        Float
+  breakdownJson          String   // Snapshot inmutable en formato JSON con todo el desglose
+  createdAt              DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([recipeId])
+  @@map("calculation_history")
+}
+
